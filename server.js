@@ -8,6 +8,12 @@ const authRoutes = require('./routes/auth');
 const connectionRoutes = require('./routes/connections');
 const roomRoutes = require('./routes/rooms'); // Import room routes
 
+
+const allowedOrigins = [
+    'https://chatting-app-lyart.vercel.app',
+    'http://localhost:3000'
+];
+
 // Load environment variables
 dotenv.config();
 
@@ -18,7 +24,19 @@ connectDB();
 const app = express();
 
 // Middleware
-app.use(cors({ origin: 'https://chatting-app-lyart.vercel.app' })); // Replace with your frontend URL
+app.use(
+    cors({
+        origin: (origin, callback) => {
+            if (!origin || allowedOrigins.includes(origin)) {
+                callback(null, true);
+            } else {
+                callback(new Error('Not allowed by CORS'));
+            }
+        },
+        credentials: true,
+    })
+);
+
 app.use(express.json());
 
 // Routes
@@ -27,13 +45,20 @@ app.use('/api/connections', connectionRoutes);
 app.use('/api/rooms', roomRoutes); // Add room routes
 
 // Create an HTTP server and integrate Socket.IO
-const server = createServer(app);
-const io = new Server(server, {
+const server = createServer(app);  
+  const io = new Server(server, {
     cors: {
-        origin: 'https://chatting-app-lyart.vercel.app', // Replace with your frontend URL
-        methods: ['GET', 'POST'],
+      origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      },
+      methods: ['GET', 'POST'],
     },
-});
+  });
+  
 
 // Socket.IO Event Handlers
 io.on('connection', (socket) => {
@@ -47,7 +72,7 @@ io.on('connection', (socket) => {
         }
         socket.join(room);
         console.log(`User joined room: ${room}`);
-        
+
         // Log members of the room
         const roomMembers = io.sockets.adapter.rooms.get(room);
         console.log(`Members in room ${room}:`, roomMembers ? [...roomMembers] : 'No members');
