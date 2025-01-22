@@ -1,5 +1,5 @@
 const express = require('express');
-const Room = require('../models/Room'); // Room schema
+const Room = require('../models/room'); // Room schema
 const router = express.Router();
 
 // Get or create a room using emails
