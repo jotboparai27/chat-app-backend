@@ -18,7 +18,7 @@ connectDB();
 const app = express();
 
 // Middleware
-app.use(cors({ origin: 'http://localhost:3000' })); // Replace with your frontend URL
+app.use(cors({ origin: 'https://chatting-app-lyart.vercel.app' })); // Replace with your frontend URL
 app.use(express.json());
 
 // Routes
@@ -30,7 +30,7 @@ app.use('/api/rooms', roomRoutes); // Add room routes
 const server = createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: 'http://localhost:3000', // Replace with your frontend URL
+        origin: 'https://chatting-app-lyart.vercel.app', // Replace with your frontend URL
         methods: ['GET', 'POST'],
     },
 });
